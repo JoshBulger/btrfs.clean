@@ -1,0 +1,23 @@
+#!/bin/bash
+# This script will clean all btrfs subvolumes in / and /home except for the orininal and the last two pairs
+# TODO add cla for how many subs the user want's to keep
+
+
+# check permissions
+if [[ $UID != 0 ]]; then
+  echo "must be run as root"
+  exit 1
+fi
+
+# get list of subvolumes and remove {3..N-4}
+arr=(`btrfs subvolume list / | cut -d" " -f 9`)
+c=${#arr[@]}
+if [ $c -gt 4 ]; then
+  for (( j=3; j<=$c-4; j++ ))
+  do
+    btrfs subvolume delete /"${arr[$j]}"
+    echo Removed /"${arr[$j]}"
+  done
+else
+  echo Nothing to clean!
+fi
